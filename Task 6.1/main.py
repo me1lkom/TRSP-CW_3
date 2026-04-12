@@ -5,13 +5,13 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 app = FastAPI()
 security = HTTPBasic()
 
-users_db = {
-    "admin": "adm",
-    "user": "user"
+fake_users_db = {
+    "admin": "adminpass",
+    "user": "userpass"
 }
 
 def auth_user(credentials: HTTPBasicCredentials = Depends(security)):
-    correct_password = users_db.get(credentials.username)
+    correct_password = fake_users_db.get(credentials.username)
     if correct_password is None or credentials.password != correct_password:
         raise HTTPException(
             status_code=HTTP_401_UNAUTHORIZED,
@@ -22,4 +22,4 @@ def auth_user(credentials: HTTPBasicCredentials = Depends(security)):
 
 @app.get("/login")
 def login(username: str = Depends(auth_user)):
-    return {"message": f"You got my secret, welcome"}
+    return {"message": f"You got my secret, welcome {username}"}
