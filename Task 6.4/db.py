@@ -1,13 +1,10 @@
-from models import UserInDB
-from typing import Optional
+USERS_DB = {}
 
-USERS_DB: dict[str, UserInDB] = {}
-
-def get_user(username: str) -> Optional[UserInDB]:
+def get_user(username):
     return USERS_DB.get(username)
 
-def create_user(user: UserInDB) -> None:
+def create_user(user):
     USERS_DB[user.username] = user
 
-def user_exists(username: str) -> bool:
+def user_exists(username):
     return username in USERS_DB

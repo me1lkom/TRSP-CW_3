@@ -1,4 +1,3 @@
-# main.py
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
@@ -28,10 +27,11 @@ def register(user: User):
         username=user.username,
         hashed_password=hashed_password
     )
-    
     create_user(user_in_db)
     
     return {"message": f"User {user.username} created successfully"}
+
+
 
 @app.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -51,7 +51,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": token, "token_type": "bearer"}
 
 @app.get("/protected_resource")
-async def protected_resource(current_user: UserInDB = Depends(get_current_user_from_token)):
+async def protected_resource(current_user=Depends(get_current_user_from_token)):
 
     return {
         "message": "You have access to the protected resource!",
