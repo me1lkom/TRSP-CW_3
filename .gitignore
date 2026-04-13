@@ -27,6 +27,18 @@ venv/
 Task 6.3/.env
 **/.env
 
+# Project specific - sensitive data
+Task 6.4/.env
+**/.env
+
+# Project specific - sensitive data
+Task 6.5/.env
+**/.env
+
+# Project specific - sensitive data
+Task 7.1/.env
+**/.env
+
 # Logs
 *.log
 uvicorn.log
