@@ -39,6 +39,10 @@ Task 6.5/.env
 Task 7.1/.env
 **/.env
 
+# Project specific - sensitive data
+Task 8.1/database.sqlite
+**/database.sqlite
+
 # Logs
 *.log
 uvicorn.log
