@@ -1,5 +1,3 @@
-from models import UserInDB
-
 USERS_DB = {}
 
 def get_user(username):
