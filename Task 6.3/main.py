@@ -79,8 +79,8 @@ def register(user: User):
             detail="Username already registered"
         )
     
-    hashed_password = pwd_context.hash(user.password[:72])
-    
+    hashed_password = pwd_context.hash(user.password)  
+  
     user_in_db = UserInDB(
         username=user.username,
         hashed_password=hashed_password
