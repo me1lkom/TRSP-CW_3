@@ -1,5 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from security import (
     create_jwt_token,
@@ -12,12 +15,17 @@ from db import get_user, create_user, user_exists
 
 app = FastAPI()
 
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 @app.post("/register", status_code=status.HTTP_201_CREATED)
-def register(user: User):
+@limiter.limit("1/minute")  # ограничение на 1 запрос в минуту
+def register(request: Request, user: User):
 
     if user_exists(user.username):
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_409_BAD_REQUEST,
             detail="Username already registered"
         )
     
@@ -34,7 +42,16 @@ def register(user: User):
 
 
 @app.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+@limiter.limit("5/minute")  # ограничение на 5 запросов в минуту
+async def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
+
+    # проверяем существует ли пользователь
+    user_from_db = get_user(form_data.username)
+    if not user_from_db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
 
     # проверяем учётные данные
     user = authenticate_user(form_data.username, form_data.password)
@@ -62,4 +79,4 @@ async def protected_resource(current_user=Depends(get_current_user_from_token)):
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to JWT Auth API. Use /register, /login, /protected_resource"}
+    return {"message": "Welcome to JWT Auth API with Rate Limiting"}
